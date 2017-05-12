@@ -4,6 +4,8 @@
 #include "PID.h"
 #include <math.h>
 
+#include "Twiddle.h"
+
 // for convenience
 using json = nlohmann::json;
 
@@ -20,12 +22,11 @@ int UdacityTest();
 
 int main()
 {
-//  PID pid;
-//  pid.Init(0.2, 3.0, 0.004);
-//  pid.UpdateError(20);
-//  std::cout << pid.TotalError() << std::endl;
-  int result = UdacityTest();
-  return result;
+  Twiddle twiddle;
+  twiddle.FindParams();
+//  int result = UdacityTest();
+//  return result;
+  return 0;
 }
 
 int UdacityTest() {
