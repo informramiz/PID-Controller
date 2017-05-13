@@ -3,11 +3,11 @@ A PID Control to control the steering of a car to race around the track in a sim
 
 ## Components of PID-Controller
 
-**P (propoprtional): ** Calculates the value (steering angle in this) proportional to the passed _error_ (Cross Track Error in this case).
+**P (propoprtional)**: Calculates the value (steering angle in this) proportional to the passed _error_ (Cross Track Error in this case).
 
-** D (Derivative):** Derivative part avoids overshooting (oscilations) of the car from its _reference track_, assuming `delta=1` in this project.
+**D (Derivative)**: Derivative part avoids overshooting (oscilations) of the car from its _reference track_, assuming `delta=1` in this project.
 
-** I (Integral):** Handles any systematic bias (wheel alignment error, wind pressure, slippery road etc.)
+**I (Integral)**: Handles any systematic bias (wheel alignment error, wind pressure, slippery road etc.)
 
 For example, following video was recorded of simulator with following values for each part (P, I, D) of the PID.
 `
