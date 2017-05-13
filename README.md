@@ -24,18 +24,19 @@ Derivative gain = 4.0
 
 I used a mix of manual guess work and Twiddle algorithm. You can find the Twiddle code in repo.
 
-- For speed = 30mph I used following values
-
+For `speed = 30mph` I used following values
+```
 P gain = 0.2
 I gain = 0.0
 D gain = 4.0
+```
 
-- For speed = 50mph I used following values
-
+For `speed = 50mph` I used following values
+```
 P gain = 0.1
 I gain = 0.0
 D gain = 1.5
-
+```
 
 ## Getting Started
 
@@ -55,9 +56,9 @@ double steer_value = pid.TotalError();
 
 //as steering angle is in [1, -1] so make sure boundaries 
 if (steer_value > 1) {
-steer_value = 1;
+    steer_value = 1;
 } else if (steer_value < -1) {
-steer_value = -1;
+    steer_value = -1;
 }
 
 //pass the steer_value to simulator or whatever hardware/software you want to
