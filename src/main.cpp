@@ -28,6 +28,7 @@ int main()
   //  return 0;
 
   //comment below code if you want to use Twiddle
+  //for now only supports 2 speed values = (0.3=30mph, 0.5=50mph)
   double const const double kdesired_speed = 0.3;
   int result = UdacityTest(kdesired_speed);
   return result;
