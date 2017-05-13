@@ -1,7 +1,68 @@
 # CarND-Controls-PID
-Self-Driving Car Engineer Nanodegree Program
+A PID Control to control the steering of a car to race around the track in a simulator. 
 
----
+## Components of PID-Controller
+
+**P (propoprtional): ** Calculates the value (steering angle in this) proportional to the passed _error_ (Cross Track Error in this case).
+
+** D (Derivative):** Derivative part avoids overshooting (oscilations) of the car from its _reference track_, assuming `delta=1` in this project.
+
+** I (Integral):** Handles any systematic bias (wheel alignment error, wind pressure, slippery road etc.)
+
+For example, following video was recorded of simulator with following values for each part (P, I, D) of the PID.
+`
+```
+Proportional gain = 0.2
+Integral gain = 0.0 (since no or negligible systematic bias in this simulator)
+Derivative gain = 4.0
+```
+
+![animation](visualization/animated.gif)
+
+
+## Parameter Fine Tunning
+
+I used a mix of manual guess work and Twiddle algorithm. You can find the Twiddle code in repo.
+
+- For speed = 30mph I used following values
+
+P gain = 0.2
+I gain = 0.0
+D gain = 4.0
+
+- For speed = 50mph I used following values
+
+P gain = 0.1
+I gain = 0.0
+D gain = 1.5
+
+
+## Getting Started
+
+There is a detailed example of code in main.cpp that you can refer to for how to connect to the simulator and how to use PID-Controller. Following is a high level use of PID-Controller code.
+
+```
+PID pid;
+
+//initialize gians Kp, Ki, Kd
+pid.Init(0.2, 0.0, 4.0);
+
+//pass cross track error (cte) to pid
+pid.UpdateError(cte);
+
+//get the resultant steering angle
+double steer_value = pid.TotalError();
+
+//as steering angle is in [1, -1] so make sure boundaries 
+if (steer_value > 1) {
+steer_value = 1;
+} else if (steer_value < -1) {
+steer_value = -1;
+}
+
+//pass the steer_value to simulator or whatever hardware/software you want to
+```
+
 
 ## Dependencies
 
@@ -22,63 +83,11 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Basic Build Instructions
 
+Running `./do.sh` on Linux or Mac should build and run the PID controller. Following are the commands in that file. 
+
 1. Clone this repo.
 2. Make a build directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./pid`. 
 
-## Editor Settings
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
-
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
-
-## Code Style
-
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
-
-## Project Instructions and Rubric
-
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
-
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/e8235395-22dd-4b87-88e0-d108c5e5bbf4/concepts/6a4d8d42-6a04-4aa6-b284-1697c0fd6562)
-for instructions and the project rubric.
-
-## Hints!
-
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
-
-## Call for IDE Profiles Pull Requests
-
-Help your fellow students!
-
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
-
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
-
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
-
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
