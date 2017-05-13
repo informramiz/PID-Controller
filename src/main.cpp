@@ -18,26 +18,32 @@ double rad2deg(double x) { return x * 180 / pi(); }
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
 std::string hasData(std::string s);
-int UdacityTest();
+int UdacityTest(const double kdesired_speed);
 
 int main()
 {
-//  Twiddle twiddle;
-//  twiddle.FindParams();
-  int result = UdacityTest();
+  //uncomment below code if you want to use Twiddle for params optimization
+  //  Twiddle twiddle;
+  //  twiddle.FindParams();
+  //  return 0;
+
+  //comment below code if you want to use Twiddle
+  double const const double kdesired_speed = 0.3;
+  int result = UdacityTest(kdesired_speed);
   return result;
-//  return 0;
 }
 
-int UdacityTest() {
+int UdacityTest(const double kdesired_speed) {
   uWS::Hub h;
-
   PID pid;
-  // TODO: Initialize the pid variable. with Twiddle optimization
-  pid.Init(0.2, 0.00, 3.0);
-//  pid.Init(13.0656, 0, 0.48);
+  // Initialize the pid variable. with Twiddle optimization
+  if (kdesired_speed == 0.3) {
+    pid.Init(0.2, 0.0, 4.0);
+  } else {
+    pid.Init(0.1, 0.00, 1.5);
+  }
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&pid, kdesired_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -54,14 +60,14 @@ int UdacityTest() {
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
           double steer_value;
           /*
-           * TODO: Calcuate steering value here, remember the steering value is
+           * Calcuate steering value here, remember the steering value is
            * [-1, 1].
            * NOTE: Feel free to play around with the throttle and speed. Maybe use
            * another PID controller to control the speed!
            */
 
           pid.UpdateError(cte);
-          std::cout << "p_error, i_error, d_error: " << pid.p_error << ", " << pid.i_error << ", " << pid.d_error << std::endl;
+          //          std::cout << "p_error, i_error, d_error: " << pid.p_error << ", " << pid.i_error << ", " << pid.d_error << std::endl;
           steer_value = pid.TotalError();
 
           if (steer_value > 1) {
@@ -75,7 +81,7 @@ int UdacityTest() {
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = kdesired_speed;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
