@@ -13,7 +13,7 @@
 
 
 Twiddle::Twiddle()
-: N_(4000), ksteps_before_error_sum_(100) {
+: N_(6000), ksteps_before_error_sum_(100) {
   last_avg_error_ = 0;
 }
 
@@ -85,15 +85,12 @@ int Twiddle::RunPID(double params[]) {
             steer_value = -1;
           }
 
-          // DEBUG
-//          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
           count = count + 1;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = 0.5;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-//          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
           if (count >= this->ksteps_before_error_sum_) {
@@ -101,22 +98,18 @@ int Twiddle::RunPID(double params[]) {
           }
 
           if (count >= this->N_) {
-//            std::cout << "Count for Twiddle Complete" << std::endl;
             try {
 
               std::string msg = "42[\"reset\",{}]";
               ws.send(msg.data(), msg.length(), uWS::OpCode::CLOSE);
 
               last_avg_error_ = error_sum / this->N_;
-
-//              std::cout << "calling close" << std::endl;
               ws.close();
               group->close();
 
             } catch (...) {
               std::cout << "Exception caught during close" << std::endl;
             }
-//            std::cout << "Returning" << std::endl;
           }
 
         }
@@ -193,7 +186,7 @@ bool Twiddle::TryIncreasing(double p[], double dp[], int i, double &best_error) 
     best_error = last_avg_error_;
 
     //increase dp[i] value for next iteration
-    dp[i] *= 1.1;
+    dp[i] *= 1.5;
 
     return true;
 
@@ -224,7 +217,7 @@ bool Twiddle::TryDecreasing(double p[], double dp[], int i, double &best_error) 
     best_error = last_avg_error_;
 
     //increase dp[i] value for next iteration
-    dp[i] *= 1.3;
+    dp[i] *= 1.5;
 
     return true;
 
@@ -250,8 +243,8 @@ void Twiddle::FindParams(double tolerance) {
   //  std::cout << "Error received: " << error << std::endl;
 
 
-  double p[] = {0.012891, 0.00000001, 0.051 };
-  double dp[] = {0.000793881, 0.00000007793, 0.000649539};
+  double p[] = {0.45, 0.000025, 22};
+  double dp[] = {0.1, 0.0001, 4};
 
   RunPID(p);
   double best_error = last_avg_error_;
@@ -292,7 +285,7 @@ void Twiddle::FindParams(double tolerance) {
       //as both increasing and decreasing both did not help so
       //we should decrease dp[i] value/interval to try on
       //smaller increments/decrements to p[i]
-      dp[i] *= 0.7;
+      dp[i] *= 0.5;
     }
   }
 
