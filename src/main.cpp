@@ -22,11 +22,11 @@ int UdacityTest();
 
 int main()
 {
-  Twiddle twiddle;
-  twiddle.FindParams();
-//  int result = UdacityTest();
-//  return result;
-  return 0;
+//  Twiddle twiddle;
+//  twiddle.FindParams();
+  int result = UdacityTest();
+  return result;
+//  return 0;
 }
 
 int UdacityTest() {
@@ -34,7 +34,8 @@ int UdacityTest() {
 
   PID pid;
   // TODO: Initialize the pid variable. with Twiddle optimization
-  pid.Init(0.01, 0.00002, 0.05);
+  pid.Init(0.2, 0.00, 3.0);
+//  pid.Init(13.0656, 0, 0.48);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -60,6 +61,7 @@ int UdacityTest() {
            */
 
           pid.UpdateError(cte);
+          std::cout << "p_error, i_error, d_error: " << pid.p_error << ", " << pid.i_error << ", " << pid.d_error << std::endl;
           steer_value = pid.TotalError();
 
           if (steer_value > 1) {

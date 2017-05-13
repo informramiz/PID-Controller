@@ -13,7 +13,7 @@
 
 
 Twiddle::Twiddle()
-: N_(1000), ksteps_before_error_sum_(100) {
+: N_(4000), ksteps_before_error_sum_(100) {
   last_avg_error_ = 0;
 }
 
@@ -86,14 +86,14 @@ int Twiddle::RunPID(double params[]) {
           }
 
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+//          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
           count = count + 1;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = 0.3;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+//          std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
           if (count >= this->ksteps_before_error_sum_) {
@@ -101,7 +101,7 @@ int Twiddle::RunPID(double params[]) {
           }
 
           if (count >= this->N_) {
-            std::cout << "Count for Twiddle Complete" << std::endl;
+//            std::cout << "Count for Twiddle Complete" << std::endl;
             try {
 
               std::string msg = "42[\"reset\",{}]";
@@ -109,14 +109,14 @@ int Twiddle::RunPID(double params[]) {
 
               last_avg_error_ = error_sum / this->N_;
 
-              std::cout << "calling close" << std::endl;
+//              std::cout << "calling close" << std::endl;
               ws.close();
               group->close();
 
             } catch (...) {
               std::cout << "Exception caught during close" << std::endl;
             }
-            std::cout << "Returning" << std::endl;
+//            std::cout << "Returning" << std::endl;
           }
 
         }
@@ -184,6 +184,8 @@ bool Twiddle::TryIncreasing(double p[], double dp[], int i, double &best_error) 
   //get the current run of PID error calculated
   double new_error = last_avg_error_;
 
+  std::cout << "best error, error after increase: " << best_error << ", " << last_avg_error_ << std::endl;
+
   //check if new error is decreased than best_error
   if (last_avg_error_ < best_error) {
     //increasing by value dp[i] improved error than before's best_err so
@@ -213,6 +215,7 @@ bool Twiddle::TryDecreasing(double p[], double dp[], int i, double &best_error) 
 
   //get the current run of PID error calculated
   double new_error = last_avg_error_;
+  std::cout << "best error, error after decrease: " << best_error << ", " << last_avg_error_ << std::endl;
 
   //check if new error is decreased than best_error
   if (last_avg_error_ < best_error) {
@@ -221,7 +224,7 @@ bool Twiddle::TryDecreasing(double p[], double dp[], int i, double &best_error) 
     best_error = last_avg_error_;
 
     //increase dp[i] value for next iteration
-    dp[i] *= 1.1;
+    dp[i] *= 1.3;
 
     return true;
 
@@ -247,23 +250,35 @@ void Twiddle::FindParams(double tolerance) {
   //  std::cout << "Error received: " << error << std::endl;
 
 
-  double p[] = {0, 0, 0};
-  double dp[] = {1, 1, 1};
+  double p[] = {0.012891, 0.00000001, 0.051 };
+  double dp[] = {0.000793881, 0.00000007793, 0.000649539};
 
-  double best_error = RunPID(p);
+  RunPID(p);
+  double best_error = last_avg_error_;
 
+  int iteration = 1;
   while ((dp[0] + dp[1] + dp[2]) > tolerance) {
+
+    std::cout << "-----------Iteration-" << iteration << "-----------" << std::endl;
+    std::cout << "P: " << p[0] << ", " << p[1] << ", " << p[2] << std::endl;
+    std::cout << "dp: " << dp[0] << ", " << dp[1] << ", " << dp[2] << std::endl;
+    iteration++;
+
     for ( int i = 0; i < 3; ++i) {
+      std::cout << "-----------param-" << i << "-----------" << std::endl;
+      std::cout << "Best error: " << best_error << std::endl;
 
       //try increasing p[i] by value dp[i] to see if it decreases error
+      std::cout << "Trying increasing" << std::endl;
       bool didIncreaseHelped = TryIncreasing(p, dp, i, best_error);
 
       //if increasing p[i] improved error then we should continue increasing it
       if(didIncreaseHelped) {
-        std::cout << "Increasing help: params: " << p[0] << ", " << p[1] << ", " << p[2] << std::endl;
+        std::cout << "Increasing helped: params: " << p[0] << ", " << p[1] << ", " << p[2] << std::endl;
         continue;
       }
 
+      std::cout << "Trying decreasing" << std::endl;
       //try decreasing p[i] by value dp[i] to see if it decreases error
       bool didDecreaseHelped = TryDecreasing(p, dp, i, best_error);
 
@@ -277,7 +292,7 @@ void Twiddle::FindParams(double tolerance) {
       //as both increasing and decreasing both did not help so
       //we should decrease dp[i] value/interval to try on
       //smaller increments/decrements to p[i]
-      dp[i] *= 0.9;
+      dp[i] *= 0.7;
     }
   }
 

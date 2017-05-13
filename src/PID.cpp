@@ -39,6 +39,7 @@ void PID::UpdateError(double cte) {
 
   //calculate D (derivative) part to avoid overshooting, assuming delta=1
   d_error = -Kd * (cte - prev_cte_);
+  prev_cte_ = cte;
 
   //add to to sum of all errors observed till now
   total_error += cte;
