@@ -38,6 +38,10 @@ I gain = 0.0
 D gain = 1.5
 ```
 
+## Math and Intuition Behind PID-Controller
+
+I took some rough [notes](https://drive.google.com/open?id=0Bxv9kPZMr-zbR3Y2ZVJNNHdfdGs) during my study of PID-Controllers.
+
 ## Getting Started
 
 There is a detailed example of code in main.cpp that you can refer to for how to connect to the simulator and how to use PID-Controller. Following is a high level use of PID-Controller code.
